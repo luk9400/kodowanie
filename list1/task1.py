@@ -1,7 +1,7 @@
 import math
 
 def func(filename):
-    with open(filename, 'r') as f:
+    with open(filename, 'rb') as f:
         symbols_frequency = {}
         num_of_symbols = 0
         while True:
@@ -24,4 +24,4 @@ def entropy(freq, num_of_symbols):
         H += freq[i]/num_of_symbols * -math.log(freq[i]/num_of_symbols, 2)
     return H
 
-func('pan-tadeusz-czyli-ostatni-zajazd-na-litwie.txt')
+func('test2.bin')
