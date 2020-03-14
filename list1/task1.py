@@ -33,9 +33,13 @@ def func(filename):
                 symbols_frequency[symbol] = 1
 
         # print(symbols_frequency)
-        # print(cond_freq)
-        print(entropy(symbols_frequency, num_of_symbols))
-        print(cond_entropy(cond_freq, symbols_frequency, num_of_symbols))
+        #print(cond_freq)
+        #print(num_of_symbols)
+        ent = entropy(symbols_frequency, num_of_symbols)
+        cond_ent = cond_entropy(cond_freq, symbols_frequency, num_of_symbols)
+        print(ent)
+        print(cond_ent)
+        print(abs(cond_ent - ent))
 
 
 def entropy(freq, num_of_symbols):
