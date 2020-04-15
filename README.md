@@ -1,2 +1,11 @@
-# kodowanie
+# Kodowanie
 Repozytorium do kursu "Kodowanie i Kompresja Danych"
+
+### Lista 1.
+- liczenie entropii oraz entropii warunkowej
+
+### Lista 2.
+- Dynamiczne kodowanie Huffmana
+
+### Lista 3.
+- Kompresja LZW
