@@ -1,6 +1,7 @@
 #!/usr/bin/python
 """ LZW decoder """
 import sys
+from FibonacciCode import FibonacciCode
 
 
 def elias_gamma(code):
@@ -51,15 +52,11 @@ def elias_omega(code):
     return codes
 
 
-def fibonacci(code):
-    pass
-
-
 def decode(input_file, output_file, func=elias_omega):
     with open(input_file, "rb") as inp, open(output_file, "wb") as output:
         dictionary = []
         for i in range(256):
-            dictionary.append(chr(i))
+            dictionary.append(bytes([i]))
 
         hexstring = inp.read().hex()
         bitstring = "".join(
@@ -68,8 +65,14 @@ def decode(input_file, output_file, func=elias_omega):
                 for x in range(0, len(hexstring), 2)
             ]
         )
+
+        # padding thing
+        if func.__name__ != "elias_gamma" and func.__name__ != "elias_delta":
+            num = bitstring[:3]
+            bitstring = bitstring[3:len(bitstring)-(int(num, base=2))]
+
         codes = func(bitstring)
-        print(codes)
+        # print(codes)
 
         idx = 0
         OLD = codes[idx]
@@ -90,8 +93,8 @@ def decode(input_file, output_file, func=elias_omega):
             OLD = NEW
             idx += 1
 
-        print(result)
-        output.write(str.encode(result))
+        # print(result)
+        output.write(result)
 
 
 if __name__ == "__main__":
@@ -105,7 +108,7 @@ if __name__ == "__main__":
         if sys.argv[3] == "--omega":
             decode(sys.argv[1], sys.argv[2], elias_omega)
         if sys.argv[3] == "--fib":
-            decode(sys.argv[1], sys.argv[2], fibonacci)
+            decode(sys.argv[1], sys.argv[2], FibonacciCode().decode)
     else:
         print(
             "decoder [input_file] [output_file] [coding_function, default=elias_omega]"
