@@ -29,27 +29,25 @@ def elias_delta(number):
 
 def encode(input_file, output_file, func=elias_omega):
     with open(input_file, "rb") as inp, open(output_file, "wb") as output:
-        dictionary = []
+        dictionary = {}
         for i in range(256):
-            dictionary.append(chr(i))
+            dictionary[chr(i)] = i
+
+        input_bytes = inp.read()
 
         bitstring_output = ""
         # get ascii char from byte
-        P = chr(int.from_bytes(inp.read(1), "big"))
-        while True:
-            tmp = inp.read(1)
-            if len(tmp) == 0:
-                break
-
-            C = chr(int.from_bytes(tmp, "big"))
+        P = chr(int.from_bytes([input_bytes[0]], "big"))
+        for byte in input_bytes[1:]:
+            C = chr(int.from_bytes([byte], "big"))
 
             if P + C in dictionary:
                 P = P + C
             else:
-                bitstring_output += func(dictionary.index(P))
-                dictionary.append(P + C)
+                bitstring_output += func(dictionary[P] + 1)
+                dictionary[P + C] = len(dictionary)
                 P = C
-        bitstring_output += func(dictionary.index(P))
+        bitstring_output += func(dictionary[P] + 1)
 
         # padding thing
         if func.__name__ == "elias_gamma" or func.__name__ == "elias_delta":
@@ -58,11 +56,10 @@ def encode(input_file, output_file, func=elias_omega):
         else:
             if (len(bitstring_output) + 3) % 8 != 0:
                 pad_len = (len(bitstring_output) + 3) % 8
-                bitstring_output = bin(pad_len)[2:] + bitstring_output + "0" * pad_len
+                bitstring_output = bin(pad_len)[2:].zfill(3) + bitstring_output + "0" * pad_len
             else:
                 bitstring_output = "000" + bitstring_output
 
-        # print(bitstring_output)
         b = bytes(
             int(bitstring_output[i : i + 8], 2)
             for i in range(0, len(bitstring_output), 8)

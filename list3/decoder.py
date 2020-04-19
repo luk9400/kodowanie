@@ -48,7 +48,7 @@ def elias_omega(code):
         elif code[i] == "1":
             s = code[i : i + n + 1]
             i += n + 1
-            n = int(s, 2)
+            n = int(s, base=2)
     return codes
 
 
@@ -71,8 +71,7 @@ def decode(input_file, output_file, func=elias_omega):
             num = bitstring[:3]
             bitstring = bitstring[3:len(bitstring)-(int(num, base=2))]
 
-        codes = func(bitstring)
-        # print(codes)
+        codes = list(map(lambda x : x -1, func(bitstring)))
 
         idx = 0
         OLD = codes[idx]
