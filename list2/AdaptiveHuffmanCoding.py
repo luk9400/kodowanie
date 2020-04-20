@@ -118,3 +118,32 @@ class AdaptiveHuffmanCoding:
             idx += 1
 
         return result
+
+    def write_to_file(self, text, filename):
+        with open(filename, "wb") as f:
+            if (len(text) + 3) % 8 != 0:
+                pad_len = 8 - (len(text) + 3) % 8
+                output = bin(pad_len)[2:].zfill(3) + text + "0" * pad_len
+            else:
+                output = "000" + text
+            
+            b = bytes(
+                int(output[i:i + 8], base=2)
+                for i in range(0, len(output), 8)
+            )
+            f.write(b)
+
+    def read_from_file(self, filename):
+        with open(filename, "rb") as f:
+            hexstring = f.read().hex()
+            bitstring = "".join(
+                [
+                    "{0:08b}".format(int(hexstring[x : x + 2], base=16))
+                    for x in range(0, len(hexstring), 2)
+                ]
+            )
+
+            num = bitstring[:3]
+            bitstring = bitstring[3:len(bitstring)-int(num, base=2)]
+
+            return bitstring

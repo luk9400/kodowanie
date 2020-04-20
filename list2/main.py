@@ -21,23 +21,23 @@ def entropy(string):
 
 def main(args):
     if len(args) == 4:
-        with open(args[1]) as inp:
-            text = inp.read()
-
         if args[3] == "--decode":
+            text = AdaptiveHuffmanCoding().read_from_file(args[1])
             result = AdaptiveHuffmanCoding().decode(text)
 
             with open(args[2], "w") as output:
                 output.write(result)
 
         elif args[3] == "--encode":
+            with open(args[1]) as inp:
+                text = inp.read()
+
             result = AdaptiveHuffmanCoding().encode(text)
             print("Entropy: ", entropy(text))
             print("Average length: ", len(result) / len(text))
             print("Compression ratio: ", len(text) * 8 / len(result))
 
-            with open(args[2], "w") as output:
-                output.write(result)
+            AdaptiveHuffmanCoding().write_to_file(result, args[2])
 
     else:
         print("main [input_file] [output_file] [--encode/--decode]")
