@@ -9,3 +9,6 @@ Repozytorium do kursu "Kodowanie i Kompresja Danych"
 
 ### Lista 3.
 - Kompresja LZW
+
+### Lista 4.
+- Kodowanie JPEG-LS
