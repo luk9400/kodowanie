@@ -140,7 +140,7 @@ if __name__ == "__main__":
             tga = f.read()
             width = tga[13] * 256 + tga[12]
             height = tga[15] * 256 + tga[14]
-            bitmap = parse_bitmap(tga[12 : len(tga) - 26], width, height)
+            bitmap = parse_bitmap(tga[18 : len(tga) - 26], width, height)
 
             print("Input entropy")
             entropies = {
