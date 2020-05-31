@@ -189,11 +189,12 @@ def encode(bitmap, k):
         for x in range(bitmap.width)
     ]
 
-    byte_array = bitmap_to_array(filtered_low)
-    byte_array = differential_coding(byte_array)
+    # byte_array = bitmap_to_array(filtered_low)
+    # byte_array = differential_coding(byte_array)
+    low = differential_coding(filtered_low)
+    byte_array = bitmap_to_array(low)
 
     # map all values to positive numbers for Elias coding
-    # byte_array = [x + 256 for x in byte_array]
     byte_array = [2 * x if x > 0 else abs(x) * 2 + 1 for x in byte_array]
 
     bitstring = "".join([EliasGamma().encode(x) for x in byte_array])
@@ -243,10 +244,14 @@ def decode(payload_low):
     )
 
     codes = EliasGamma().decode(bitstring)
-    # diffs = [x - 256 for x in codes]
     diffs = [x // 2 if x % 2 == 0 else -(x // 2) for x in codes]
 
-    bitmap = differential_decoding(diffs)
+    bitmap = [
+        Pixel(int(diffs[i + 2]), int(diffs[i + 1]), int(diffs[i]))
+        for i in range(0, len(diffs), 3)
+    ]
+    bitmap = differential_decoding(bitmap)
+    bitmap = bitmap_to_array(bitmap)
 
     return bytes(bitmap)
 
