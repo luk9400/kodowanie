@@ -294,7 +294,7 @@ def tests(original, new):
 
 
 def main():
-    if len(argv) == 3:
+    if len(argv) >= 3:
         with open(argv[1], "rb") as f:
             tga = f.read()
             header = tga[:18]
@@ -306,7 +306,7 @@ def main():
             bitmap = Bitmap(tga[18 : len(tga) - 26], width, height)
 
             if len(argv) == 4:
-                k = argv[3]
+                k = int(argv[3])
             else:
                 k = 2
             filtered_low, b, filtered_high, quantified = encode(bitmap, k)
