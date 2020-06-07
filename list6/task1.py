@@ -52,7 +52,7 @@ class Pixel:
     def __mod__(self, number):
         return Pixel(self.red % number, self.green % number, self.blue % number)
 
-    def quantization(self, step):
+    def uniform_quantization(self, step):
         r = int(self.red // step * step)
         g = int(self.green // step * step)
         b = int(self.blue // step * step)
@@ -172,9 +172,78 @@ def differential_decoding(diffs):
     return result
 
 
-def quantify(bitmap, k):
+def quantify_uniform(bitmap, k):
     step = 256 // (2 ** k)
-    return [pixel.quantization(step) for pixel in bitmap]
+    return [pixel.uniform_quantization(step) for pixel in bitmap]
+
+
+def quantify_nonuniform(bitmap, k):
+    reds = []
+    greens = []
+    blues = []
+    for pixel in bitmap:
+        reds.append(pixel.red)
+        greens.append(pixel.green)
+        blues.append(pixel.blue)
+
+    red_codebook = nonuniform_quantization(reds, k)
+    green_codebook = nonuniform_quantization(greens, k)
+    blues_codebook = nonuniform_quantization(blues, k)
+
+    new_reds = [red_codebook[elem] for elem in reds]
+    new_greens = [green_codebook[elem] for elem in greens]
+    new_blues = [blues_codebook[elem] for elem in blues]
+
+    quantified_bitmap = []
+    for red, green, blue in zip(new_reds, new_greens, new_blues):
+        quantified_bitmap.append(Pixel(red, green, blue))
+
+    return quantified_bitmap
+
+# doesn't work well
+def nonuniform_quantization(pixels, k):
+    n = 2 ** k
+    d = {i: 0 for i in range(256)}
+    for p in pixels:
+        d[p] += 1
+    intervals = {(i, i + 1): d[i] + d[i + 1] for i in d if i % 2 == 0}
+
+    while len(intervals) > n:
+        intervals_list = list(intervals)
+        min_interval = min(intervals)
+        i = intervals_list.index(min_interval)
+
+        if i == 0:
+            to_join = intervals_list[1]
+        elif k == len(intervals_list) - 1:
+            to_join = intervals_list[-2]
+        else:
+            to_join = (
+                intervals_list[k - 1]
+                if intervals[intervals_list[k - 1]] < intervals[intervals_list[k + 1]]
+                else intervals_list[k + 1]
+            )
+
+        new_interval = (
+            (min_interval[0], to_join[1])
+            if to_join[0] > min_interval[0]
+            else (to_join[0], min_interval[1])
+        )
+
+        intervals[new_interval] = intervals[min_interval] + intervals[to_join]
+        del intervals[min_interval]
+        del intervals[to_join]
+        intervals = dict(sorted(intervals.items()))
+
+    values = [(interval[0] + interval[1]) // 2 for interval in intervals]
+    codebook = {}
+    j = 0
+    for i in range(256):
+        if j + 1 < n and abs(values[j + 1] - i) <= abs(values[j] - i):
+            j += 1
+        codebook[i] = j
+
+    return codebook
 
 
 def encode(bitmap, k):
@@ -189,8 +258,6 @@ def encode(bitmap, k):
         for x in range(bitmap.width)
     ]
 
-    # byte_array = bitmap_to_array(filtered_low)
-    # byte_array = differential_coding(byte_array)
     low = differential_coding(filtered_low)
     byte_array = bitmap_to_array(low)
 
@@ -206,7 +273,8 @@ def encode(bitmap, k):
     b = bytes(int(bitstring[i : i + 8], 2) for i in range(0, len(bitstring), 8))
 
     # now stuff for filtered_high
-    quantified = quantify(filtered_high, k)
+    quantified = quantify_uniform(filtered_high, k)
+    # quantified = quantify_nonuniform(filtered_high, k)
     quantified_bytes = bytes(bitmap_to_array(quantified))
 
     # tests stuff
