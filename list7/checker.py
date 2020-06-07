@@ -32,7 +32,6 @@ def check(in1, in2):
 
     if diffs == 0:
         print("Pliki są takie same")
-        return
     else:
         print(f"Pliki różnią się w {diffs} 4-bitowych blokach")
 

@@ -22,8 +22,10 @@ def make_some_noise(input_file, output_file, p):
 
         new_bitstring = ""
         for bit in bitstring:
-            if p < random():
+            if p > random():
                 new_bitstring += str(swap(bit))
+            else:
+                new_bitstring += bit
 
         b = bytes(
             int(new_bitstring[i : i + 8], 2) for i in range(0, len(new_bitstring), 8)
