@@ -200,7 +200,7 @@ def quantify_nonuniform(bitmap, k):
 
     return quantified_bitmap
 
-# doesn't work well
+
 def nonuniform_quantization(pixels, k):
     n = 2 ** k
     d = {i: 0 for i in range(256)}
@@ -241,7 +241,7 @@ def nonuniform_quantization(pixels, k):
     for i in range(256):
         if j + 1 < n and abs(values[j + 1] - i) <= abs(values[j] - i):
             j += 1
-        codebook[i] = j
+        codebook[i] = values[j]
 
     return codebook
 
@@ -273,8 +273,8 @@ def encode(bitmap, k):
     b = bytes(int(bitstring[i : i + 8], 2) for i in range(0, len(bitstring), 8))
 
     # now stuff for filtered_high
-    quantified = quantify_uniform(filtered_high, k)
-    # quantified = quantify_nonuniform(filtered_high, k)
+    # quantified = quantify_uniform(filtered_high, k)
+    quantified = quantify_nonuniform(filtered_high, k)
     quantified_bytes = bytes(bitmap_to_array(quantified))
 
     # tests stuff
